@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Running Accounting System</title>
+
+<style>
+body{
+    margin:0;
+    font-family:system-ui;
+    background:#f1f5f9;
+    color:#0f172a;
+}
+
+/* HEADER */
+.header{
+    background:#0f172a;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:20px;
+    font-weight:700;
+}
+
+/* FORM */
+.form{
+    background:white;
+    margin:15px;
+    padding:15px;
+    border-radius:12px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+input{
+    padding:10px;
+    border:1px solid #cbd5e1;
+    border-radius:8px;
+}
+
+button{
+    grid-column:1/-1;
+    padding:12px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+/* TABLE */
+.table{
+    margin:15px;
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#e2e8f0;
+    padding:12px;
+}
+
+td{
+    text-align:center;
+    padding:12px;
+    border-bottom:1px solid #e2e8f0;
+}
+
+.sale{color:#16a34a;font-weight:600;}
+.expense{color:#ea580c;font-weight:600;}
+
+.pos{
+    color:#16a34a;
+    font-weight:700;
+}
+
+.neg{
+    color:#dc2626;
+    font-weight:700;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+📊 Running Balance Accounting (Correct System)
+</div>
+
+<!-- FORM -->
+<div class="form">
+    <input type="date" id="date">
+    <input type="number" id="sale" placeholder="Sale Amount">
+    <input type="number" id="expense" placeholder="Expense Amount">
+    <button onclick="addEntry()">Add Entry</button>
+</div>
+
+<!-- TABLE -->
+<div class="table">
+<table>
+<thead>
+<tr>
+    <th>Date</th>
+    <th>Sale</th>
+    <th>Expense</th>
+    <th>Daily Result</th>
+    <th>Running Balance</th>
+</tr>
+</thead>
+
+<tbody id="body"></tbody>
+</table>
+</div>
+
+<script>
+
+// load saved data
+let data = JSON.parse(localStorage.getItem("running_acc")) || [];
+
+function render(){
+
+    let html = "";
+    let running = 0;
+
+    data.forEach(item => {
+
+        let daily = item.sale - item.expense;
+
+        // RUNNING CALCULATION (THIS IS YOUR MAIN REQUIREMENT)
+        running = running + daily;
+
+        let dailyShow = daily >= 0
+            ? `<span class="pos">+${daily}</span>`
+            : `<span class="neg">${daily}</span>`;
+
+        let runShow = running >= 0
+            ? `<span class="pos">+${running}</span>`
+            : `<span class="neg">${running}</span>`;
+
+        html += `
+        <tr>
+            <td>${item.date}</td>
+            <td class="sale">₹${item.sale}</td>
+            <td class="expense">₹${item.expense}</td>
+            <td>${dailyShow}</td>
+            <td>${runShow}</td>
+        </tr>`;
+    });
+
+    body.innerHTML = html;
+}
+
+function addEntry(){
+
+    let date = document.getElementById("date").value;
+    let sale = Number(document.getElementById("sale").value) || 0;
+    let expense = Number(document.getElementById("expense").value) || 0;
+
+    data.push({date, sale, expense});
+
+    localStorage.setItem("running_acc", JSON.stringify(data));
+
+    render();
+
+    document.getElementById("date").value = "";
+    document.getElementById("sale").value = "";
+    document.getElementById("expense").value = "";
+}
+
+render();
+
+</script>
+
+</body>
+</html>
